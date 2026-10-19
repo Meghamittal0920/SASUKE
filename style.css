@@ -1,0 +1,111 @@
+:root{
+  --red:#ff2a3d; --ink:#05060a; --paper:#f2ecec; --glow:0 0 24px rgba(255,42,61,.55);
+  --accent:#ff2a3d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;font-family:"Rajdhani","Segoe UI",system-ui,sans-serif;color:var(--paper)}
+#viewport{position:fixed;inset:0;overflow:hidden;z-index:1}
+#scroller{height:1000vh}   /* scroll length: bigger = slower scrub */
+html{scrollbar-width:thin;scrollbar-color:#ff2a3d #05060a}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;background:var(--ink);overflow:hidden;
+  transform-origin:0 0}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+#fx{mix-blend-mode:screen;pointer-events:none}
+
+.vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.75) 100%),
+  linear-gradient(to bottom,rgba(0,0,0,.65),transparent 22%,transparent 68%,rgba(0,0,0,.85))}
+.grain{position:absolute;inset:-50%;pointer-events:none;opacity:.09;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  animation:grain .6s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-5%)}60%{transform:translate(-6%,-2%)}80%{transform:translate(5%,4%)}100%{transform:translate(0,0)}}
+.scan{position:absolute;inset:0;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.05) 0 1px,transparent 1px 4px)}
+
+/* HUD */
+.top{position:absolute;top:44px;left:64px;right:64px;display:flex;justify-content:space-between;align-items:center;
+  letter-spacing:.35em;font-size:20px;font-weight:600;text-transform:uppercase}
+.brand{display:flex;align-items:center;gap:16px}
+.brand i{font-style:normal;opacity:.55;letter-spacing:.2em}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:var(--glow);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+.meta{display:flex;gap:36px;opacity:.7;font-variant-numeric:tabular-nums}
+.meta span{padding-left:18px;border-left:1px solid rgba(255,255,255,.3)}
+
+.side{position:absolute;top:50%;writing-mode:vertical-rl;font-size:22px;letter-spacing:.7em;opacity:.55}
+.side.left{left:54px;transform:translateY(-50%)}
+.side.right{right:54px;transform:translateY(-50%)}
+.side span{display:block;position:relative}
+.side.left::after,.side.right::after{content:"";position:absolute;left:50%;width:1px;height:140px;background:linear-gradient(var(--accent),transparent)}
+.side.left::after{top:calc(100% + 24px)} .side.right::after{bottom:calc(100% + 24px);transform:rotate(180deg)}
+.side.left::before,.side.right::before{content:"";position:absolute;left:50%;width:1px;height:140px;background:linear-gradient(transparent,var(--accent));bottom:calc(100% + 24px)}
+.side.right::before{display:none}
+
+/* title */
+.title{position:absolute;left:120px;bottom:210px;max-width:1100px;pointer-events:none}
+.kicker{font-size:22px;letter-spacing:.6em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+  display:flex;align-items:center;gap:18px;text-shadow:var(--glow)}
+.kicker::before{content:"";width:70px;height:2px;background:var(--accent);box-shadow:var(--glow)}
+.title h1{font-family:"Shippori Mincho B1","Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif;font-weight:800;font-size:196px;line-height:1.05;
+  letter-spacing:.14em;position:relative;color:var(--paper);
+  text-shadow:0 0 28px color-mix(in srgb,var(--accent) 70%,transparent),0 4px 30px rgba(0,0,0,.6);
+  transition:opacity .35s, transform .35s}
+.title h1::before,.title h1::after{content:attr(data-text);position:absolute;inset:0;mix-blend-mode:screen;opacity:0;pointer-events:none}
+.title h1::before{color:#ff2a3d;animation:gl1 4.5s infinite steps(1)}
+.title h1::after{color:#2affff;animation:gl2 4.5s infinite steps(1)}
+@keyframes gl1{0%,91%,100%{opacity:0}92%{opacity:.8;transform:translate(-6px,1px);clip-path:inset(10% 0 55% 0)}95%{opacity:.8;transform:translate(5px,-1px);clip-path:inset(60% 0 8% 0)}97%{opacity:0}}
+@keyframes gl2{0%,91%,100%{opacity:0}93%{opacity:.8;transform:translate(6px,-1px);clip-path:inset(45% 0 25% 0)}96%{opacity:.8;transform:translate(-5px,1px);clip-path:inset(5% 0 70% 0)}98%{opacity:0}}
+.sub{font-size:34px;letter-spacing:.5em;text-transform:uppercase;opacity:.8;margin-top:18px;padding-left:6px}
+.swap{opacity:0 !important;transform:translateY(16px)}
+
+/* controls */
+.bottom{position:absolute;left:64px;right:230px;bottom:54px;display:flex;align-items:center;gap:36px}
+.ctrl{display:flex;gap:12px}
+button{all:unset;cursor:pointer;min-width:58px;height:58px;display:grid;place-items:center;padding:0 12px;
+  border:1px solid rgba(255,255,255,.35);border-radius:50%;font-size:17px;letter-spacing:.1em;font-weight:700;
+  backdrop-filter:blur(8px);background:rgba(0,0,0,.35);transition:.25s}
+button#speed{border-radius:29px}
+button:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);transform:scale(1.06)}
+.timeline{flex:1;position:relative;height:40px;cursor:pointer;display:flex;align-items:center}
+.bar{position:relative;width:100%;height:3px;background:rgba(255,255,255,.2);border-radius:3px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#7a0f1b,var(--accent));box-shadow:var(--glow);border-radius:3px}
+.knob{position:absolute;top:50%;left:0;width:18px;height:18px;border-radius:50%;background:var(--paper);
+  transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(255,42,61,.3),var(--glow)}
+.ticks{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.ticks i{width:1px;height:12px;background:rgba(255,255,255,.25)}
+.count{font-size:28px;letter-spacing:.2em;font-variant-numeric:tabular-nums;opacity:.9}
+.count b{color:var(--accent);text-shadow:var(--glow)}
+
+/* tomoe mark – also hides the corner watermark of the source frames */
+.mark{position:absolute;left:1730px;top:870px;width:112px;height:112px;color:var(--accent);opacity:.9;
+  animation:spin 14s linear infinite;filter:drop-shadow(0 0 12px rgba(255,42,61,.8))}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#loader{position:absolute;inset:0;z-index:20;background:#030308;display:grid;place-content:center;justify-items:center;gap:20px;
+  transition:opacity .9s, visibility .9s}
+#loader.done{opacity:0;visibility:hidden}
+#loader .ring{width:130px;height:130px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);
+  animation:spin 1s linear infinite;box-shadow:var(--glow)}
+#loader p{font-size:48px;font-weight:700;letter-spacing:.2em}
+#loader span{letter-spacing:.8em;font-size:18px;opacity:.5}
+.hint{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;
+  letter-spacing:.6em;font-size:18px;opacity:.85;transition:opacity .6s;pointer-events:none}
+.hint.hide{opacity:0}
+.hint i{width:2px;height:60px;background:linear-gradient(var(--accent),transparent);animation:drop 1.6s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.timeline{display:none}
+.bottom{justify-content:flex-end}
+.count{display:none}
+.meta{display:none}
+/* final reveal: fade the chapter text so the cursed eyes take over */
+.title,.side{transition:opacity .8s}
+#stage.revealed .title{opacity:.25}
+#stage.revealed .side{opacity:.2}
+
+/* "click to awaken" prompt on the last frame */
+.reveal{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:16px;
+  letter-spacing:.6em;font-size:18px;opacity:0;transition:opacity .6s;pointer-events:none}
+.reveal.show{opacity:.9}
+.reveal b{width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);box-shadow:var(--glow);animation:ping 1.4s infinite}
+@keyframes ping{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.5);opacity:0}}
+#viewport:has(.reveal.show){cursor:pointer}
